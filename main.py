@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from typing import Annotated
 
 # --- Configuración conexión a PostgreSQL (ajusta usuario, pass, host, puerto, dbname)
-DATABASE_URL = "postgresql+psycopg2://usuario:password@host:puerto/nombre_basedatos"
+DATABASE_URL = "postgresql+psycopg2://mtNUViyTddNAbZhAVZP6R23G9k0BFcJY:mtNUViyTddNAbZhAVZP6R23G9k0BFcJY@host:5432/laburantes_db"
 engine = create_engine(DATABASE_URL, echo=True)  # echo=True para logs SQL
 
 Base = declarative_base()
