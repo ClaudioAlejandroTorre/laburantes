@@ -22,9 +22,10 @@ Base = declarative_base()
 class Servicios_Trabajadores(Base):
     __tablename__ = 'servicios_trabajadores'
     id = Column(Integer, primary_key=True, autoincrement=True)  # NUEVO
-    servicio_id = Column(ForeignKey('servicios.id'))
-    trabajador_id = Column(ForeignKey('trabajadores.id'))
+    servicio_id = Column(ForeignKey('servicios.id'), nullable=False)
+    trabajador_id = Column(ForeignKey('trabajadores.id'), nullable=False)
     precioxhora = Column(Integer)
+
 
 
 class Servicio(Base):
