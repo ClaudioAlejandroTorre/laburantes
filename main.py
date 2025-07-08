@@ -15,7 +15,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 app = FastAPI()
-
+echo=True
 app.mount("/static", StaticFiles(directory="fotos"), name="static")
 
 app.add_middleware(
@@ -34,11 +34,13 @@ class Usuarios_Servicios_Trabajadores(Base):
 
 class Servicios_Trabajadores(Base):
     __tablename__ = 'servicios_trabajadores'
-    id = Column(Integer, primary_key=True)
+    
     servicio_id = Column(ForeignKey('servicios.id'), primary_key=True)
     trabajador_id = Column(ForeignKey('trabajadores.id'), primary_key=True)
     precioxhora = Column(Integer)
+
     usuarios = relationship("Usuario", secondary="usuarios_servicios_trabajadores", back_populates='servicios_trabajadores')
+
 
 class Servicio(Base):
     __tablename__ = 'servicios'
