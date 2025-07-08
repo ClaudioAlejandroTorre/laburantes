@@ -145,6 +145,11 @@ def cargar_oficios(db: Session = Depends(get_db)):
         db.add(Servicio(titulo=titulo))
     db.commit()
     return {"mensaje": f"Se insertaron {len(oficios)} oficios"}
+##############################################################
+@app.get("/todos_trabajadores/")
+def todos_trabajadores(db: Session = Depends(get_db)):
+    return db.query(Trabajador).all()
+##############################################################
 @app.get("/Servicios_React/")
 async def Servicios(db: Session = Depends(get_db)):
 
