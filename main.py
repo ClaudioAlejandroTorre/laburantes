@@ -80,7 +80,7 @@ class Usuario(Base):
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="fotos"), name="static")
+#app.mount("/static", StaticFiles(directory="fotos"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
