@@ -4,7 +4,7 @@ from sqlalchemy import (
     create_engine, Column, Integer, Float, String, ForeignKey, DateTime,
     UniqueConstraint
 )
-from sqlalchemy.orm import declarative_base, relationship, Session
+from sqlalchemy.orm import declarative_base, relationship, Session, select
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from typing import Annotated
@@ -139,7 +139,33 @@ def cargar_oficios(db: Session = Depends(get_db)):
         db.add(Servicio(titulo=titulo))
     db.commit()
     return {"mensaje": f"Se insertaron {len(oficios)} oficios"}
+@app.get("/Servicios_React/")
+async def Servicios(db: Session = Depends(get_db)):
 
+    # Cuento los registros de servicios_trabajadores existentes
+    db_servicios = db.query(Servicio.id).all()
+    tags = [row[0] for row in db_servicios] 
+    # Selecciono las columnas a listar: Joint de las 3 tablas de 
+    db_stmt = select(Servicio.titulo).select_from (Servicio) 
+    
+    # ejecuto la consulta
+    result = db.execute(db_stmt)
+    # asigno los valores a los 4 campos seleccionados
+    servicio =  [row[0] for row in result]
+
+    a=''
+    #genero tantos strings al front como registros existen de servicios_trabajadores
+    for i in range(0, len(tags)):
+        a = a +str(tags[i])+' '+str(servicio[i])+'---'
+    a = a.split(sep='---', maxsplit=-1)
+    a.pop()
+    a = [
+    #{int(linea.split(' ', 1)[0]), linea.split(' ', 1)[1]}
+    {"id": int(linea.split(' ', 1)[0]), "nombre": linea.split(' ', 1)[1]}
+    
+    for linea in a]
+    return {'RegLog': a }
+####################################################
 
 if __name__ == "__main__":
     import uvicorn
