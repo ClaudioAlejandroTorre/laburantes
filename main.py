@@ -11,7 +11,7 @@ from typing import Annotated
 
 # --- Configuración conexión a PostgreSQL (ajusta usuario, pass, host, puerto, dbname)
 #DATABASE_URL = "postgresql+psycopg2://mtNUViyTddNAbZhAVZP6R23G9k0BFcJY:mtNUViyTddNAbZhAVZP6R23G9k0BFcJY@host:5432/laburantes_db"
-DATABASE_URL = "postgresql://mtNUViyTddNAbZhAVZP6R23G9k0BFcJY@dpg-d1m3kqa4d50c738f4a7g-a.virginia-postgres.render.com/laburantes_db"
+DATABASE_URL = "postgresql://laburantes_db_user:mtNUViyTddNAbZhAVZP6R23G9k0BFcJY@dpg-d1m3kqa4d50c738f4a7g-a/laburantes_db"
 
 engine = create_engine(DATABASE_URL, echo=True)  # echo=True para logs SQL
 
