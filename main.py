@@ -138,6 +138,16 @@ def get_db():
 db_dependency = Annotated[Session, Depends(get_db)]
 
 # ENDPOINTS
+from sqlalchemy import MetaData
+
+@app.post("/reset_db/")
+def reset_database():
+    metadata = Base.metadata
+    metadata.drop_all(bind=engine)
+    metadata.create_all(bind=engine)
+    return {"mensaje": "Base de datos reseteada exitosamente"}
+
+
 @app.post("/registro/", status_code=status.HTTP_201_CREATED)
 async def crear_registro_Trabajador(registro: TrabajadorBase, db: db_dependency):
     db_registro = Trabajador(**registro.dict())
