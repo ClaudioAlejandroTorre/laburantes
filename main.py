@@ -21,14 +21,10 @@ Base = declarative_base()
 
 class Servicios_Trabajadores(Base):
     __tablename__ = 'servicios_trabajadores'
-    # Clave compuesta sin autoincrement porque es tabla intermedia
-    servicio_id = Column(Integer, ForeignKey('servicios.id'), primary_key=True)
-    trabajador_id = Column(Integer, ForeignKey('trabajadores.id'), primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)  # NUEVO
+    servicio_id = Column(ForeignKey('servicios.id'))
+    trabajador_id = Column(ForeignKey('trabajadores.id'))
     precioxhora = Column(Integer)
-
-    # Relaciones (opcionales)
-    servicio = relationship("Servicio", back_populates="servicios_trabajadores")
-    trabajador = relationship("Trabajador", back_populates="servicios_trabajadores")
 
 
 class Servicio(Base):
