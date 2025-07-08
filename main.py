@@ -8,6 +8,7 @@ from sqlalchemy.orm import declarative_base, relationship, Session, select
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from typing import Annotated
+from fastapi import status
 
 # --- Configuración conexión a PostgreSQL (ajusta usuario, pass, host, puerto, dbname)
 #DATABASE_URL = "postgresql+psycopg2://mtNUViyTddNAbZhAVZP6R23G9k0BFcJY:mtNUViyTddNAbZhAVZP6R23G9k0BFcJY@host:5432/laburantes_db"
@@ -30,7 +31,10 @@ class Servicios_Trabajadores(Base):
     trabajador_id = Column(ForeignKey('trabajadores.id'), nullable=False)
     precioxhora = Column(Integer)
 from pydantic import BaseModel, Field
+from sqlmodel import SQLModel, Field
 
+class TrabajadorBase(SQLModel):
+    nombre: str = Field(index=True)
 class ServicioTrabajadorBase(BaseModel):
     precioxhora: int = Field(..., description="Precio por hora", example=1500)
     class Config:
@@ -146,10 +150,32 @@ def cargar_oficios(db: Session = Depends(get_db)):
     db.commit()
     return {"mensaje": f"Se insertaron {len(oficios)} oficios"}
 ##############################################################
+@app.get("/ver_servicios_trabajadores/")
+def ver_servicios_trabajadores(db: Session = Depends(get_db)):
+    filas = db.query(Servicios_Trabajadores).all()
+    return [
+        {
+            "servicio_id": f.servicio_id,
+            "trabajador_id": f.trabajador_id,
+            "precioxhora": f.precioxhora
+        }
+        for f in filas
+    ]
+##############################################################
 @app.get("/todos_trabajadores/")
 def todos_trabajadores(db: Session = Depends(get_db)):
     return db.query(Trabajador).all()
 ##############################################################
+@app.post("/registro/", status_code=status.HTTP_201_CREATED)
+############### podificado por gpt
+async def crear_registro_Trabajador(registro: TrabajadorBase, db: db_dependency):
+    db_registro = Trabajador(**registro.dict())
+    db.add(db_registro)
+    db.commit()
+    db.refresh(db_registro)
+    return {"mensaje": "Registro exitoso", "id": db_registro.id}
+##############################################################
+
 @app.get("/Servicios_React/")
 async def Servicios(db: Session = Depends(get_db)):
 
