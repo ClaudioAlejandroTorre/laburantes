@@ -16,17 +16,24 @@ DATABASE_URL = "postgresql://laburantes_db_user:mtNUViyTddNAbZhAVZP6R23G9k0BFcJY
 engine = create_engine(DATABASE_URL, echo=True)  # echo=True para logs SQL
 
 Base = declarative_base()
+from sqlalchemy import MetaData
 
+meta = MetaData()
+meta.reflect(bind=engine)  # Trae todas las tablas existentes
+meta.drop_all(bind=engine) # Borra todas las tablas
 # --- MODELOS
 
 class Servicios_Trabajadores(Base):
     __tablename__ = 'servicios_trabajadores'
-    id = Column(Integer, primary_key=True, autoincrement=True)  # NUEVO
+    id = Column(Integer, primary_key=True, autoincrement=True)  # <-- ID autoincremental
     servicio_id = Column(ForeignKey('servicios.id'), nullable=False)
     trabajador_id = Column(ForeignKey('trabajadores.id'), nullable=False)
     precioxhora = Column(Integer)
 
-
+class UsuarioServicioTrabajador(Base):
+    __tablename__ = 'usuarios_servicios_trabajadores'
+    usuario_id = Column(ForeignKey('usuarios.id'), primary_key=True)
+    servicio_trabajador_id = Column(ForeignKey('servicios_trabajadores.id'), primary_key=True)
 
 class Servicio(Base):
     __tablename__ = 'servicios'
