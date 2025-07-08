@@ -26,18 +26,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# MODELOS SQLALCHEMY
-class Usuarios_Servicios_Trabajadores(Base):
-    __tablename__ = 'usuarios_servicios_trabajadores'
-    usuario_id = Column(ForeignKey('usuarios.id'), primary_key=True)
-    servicio_trabajador_id = Column(ForeignKey('servicios_trabajadores.id'), primary_key=True)
 
 class Servicios_Trabajadores(Base):
     __tablename__ = 'servicios_trabajadores'
     servicio_id = Column(ForeignKey('servicios.id'), primary_key=True)
     trabajador_id = Column(ForeignKey('trabajadores.id'), primary_key=True)
     precioxhora = Column(Integer)
-    usuarios = relationship("Usuario", secondary="usuarios_servicios_trabajadores", back_populates='servicios_trabajadores')
 
 
 
@@ -70,16 +64,6 @@ class Opinion(Base):
     calificacion = Column(Integer, nullable=False)
     fecha = Column(DateTime, default=datetime.now(timezone.utc))
 
-class Usuario(Base):
-    __tablename__ = 'usuarios'
-    id = Column(Integer, primary_key=True)
-    nombre = Column(String, nullable=False)
-    dni = Column(String, nullable=False)
-    correoElec = Column(String, nullable=False)
-    direccion = Column(String, nullable=False)
-    localidad = Column(String, nullable=False)
-    wsapp = Column(String, nullable=False)
-    servicios_trabajadores = relationship("Servicios_Trabajadores", secondary="usuarios_servicios_trabajadores", back_populates='usuarios')
 
 Base.metadata.create_all(engine)
 
