@@ -167,6 +167,29 @@ async def Servicios(db: Session = Depends(get_db)):
     return {'RegLog': a }
 ####################################################
 
+@app.get("/Servicios/")
+async def Servicios(db: Session = Depends(get_db)):
+
+    # Cuento los registros de servicios_trabajadores existentes
+    db_servicios = db.query(Servicio.id).all()
+    tags = [row[0] for row in db_servicios] 
+    # Selecciono las columnas a listar: Joint de las 3 tablas de 
+    db_stmt = select(Servicio.titulo).select_from (Servicio) 
+    
+    # ejecuto la consulta
+    result = db.execute(db_stmt)
+    # asigno los valores a los 4 campos seleccionados
+    servicio =  [row[0] for row in result]
+
+    a=''
+    #genero tantos strings al front como registros existen de servicios_trabajadores
+    for i in range(0, len(tags)):
+        a = a +str(servicio[i])+'---'
+    a = a.split(sep='---', maxsplit=-1)
+    a.pop()
+    return {'RegLog': a }
+####################################################
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
