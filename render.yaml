@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: laburantes-api
+    env: python
+    region: oregon
+    plan: free
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql+psycopg2://laburantes_db_user:mtNUViyTddNAbZhAVZP6R23G9k0BFcJY@dpg-d1m3kqa4d50c738f4a7g-a.virginia-postgres.render.com/laburantes_db
