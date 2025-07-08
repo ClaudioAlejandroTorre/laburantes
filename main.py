@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy import (
     create_engine, Column, Integer, Float, String, ForeignKey, DateTime,
     UniqueConstraint
@@ -29,7 +29,13 @@ class Servicios_Trabajadores(Base):
     servicio_id = Column(ForeignKey('servicios.id'), nullable=False)
     trabajador_id = Column(ForeignKey('trabajadores.id'), nullable=False)
     precioxhora = Column(Integer)
+from pydantic import BaseModel, Field
 
+class ServicioTrabajadorBase(BaseModel):
+    precioxhora: int = Field(..., description="Precio por hora", example=1500)
+    class Config:
+        orm_mode = True
+        
 class UsuarioServicioTrabajador(Base):
     __tablename__ = 'usuarios_servicios_trabajadores'
     usuario_id = Column(ForeignKey('usuarios.id'), primary_key=True)
@@ -189,7 +195,67 @@ async def Servicios(db: Session = Depends(get_db)):
     a.pop()
     return {'RegLog': a }
 ####################################################
+### ahora opiniones
+from fastapi import Request
 
+@app.post("/opiniones/{param}")
+async def crear_opinion(param: int, request: Request, db: Session = Depends(get_db)):
+    data = await request.json()
+    comentario = data.get("comentario")
+    calificacion = data.get("calificacion")
+    if comentario is None or calificacion is None:
+        raise HTTPException(status_code=400, detail="Faltan campos requeridos")
+    nueva_opinion = Opinion(
+        trabajador_id=param,
+        comentario=comentario,
+        calificacion=calificacion,
+    )
+    db.add(nueva_opinion)
+    db.commit()
+    db.refresh(nueva_opinion)
+    return {"mensaje": "Opinión registrada con éxito", "id": nueva_opinion.id}
+
+####################################################
+@app.get("/opiniones_por_trabajador/{trabajador_id}")
+def opiniones_por_trabajador(trabajador_id: int, db: Session = Depends(get_db)):
+    opiniones = db.query(Opinion).filter(Opinion.trabajador_id == trabajador_id).order_by(Opinion.id.desc()).all()
+    return opiniones
+####################################################
+@app.get("/Listo_trabajadoresPorServicio/{titulo_servicio}")
+def listar_trabajadores_por_servicio(titulo_servicio: str, db: Session = Depends(get_db)):
+    consulta = (
+        db.query(Servicio.titulo, Trabajador.id, Trabajador.nombre, Trabajador.penales, Trabajador.foto, Trabajador.wsapp, Trabajador.latitud, Trabajador.longitud)
+        .join(Servicios_Trabajadores, Servicio.id == Servicios_Trabajadores.servicio_id)
+        .join(Trabajador, Trabajador.id == Servicios_Trabajadores.trabajador_id)
+        .filter(Servicio.titulo == titulo_servicio)
+        .all()
+    )
+
+    resultado = [
+        {
+            "servicio": row[0],
+            "id": row[1],
+            "nombre": row[2],
+            "penales": row[3],
+            "foto": row[4],
+            "wsapp": row[5],
+            "Latitud": row[6],
+            "Longitud": row[7]
+        }
+        for row in consulta
+    ]
+
+    return {"trabajadores": resultado}
+####################################################
+##################################################
+@app.post("/Relacionar_Trabajador_Servicio/", status_code=201)
+async def crear_Relacion_Trabajador_Servicio(registro: ServicioTrabajadorBase, db: db_dependency):
+    db_registro = Servicios_Trabajadores(**registro.dict())
+    db_registro.id = int(str(db_registro.servicio_id) + str(db_registro.trabajador_id))
+    db.add(db_registro)
+    db.commit()
+    return {"mensaje": "Relación creada correctamente"}
+####################################################
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
