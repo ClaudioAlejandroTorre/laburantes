@@ -10,6 +10,9 @@ from fastapi.staticfiles import StaticFiles
 from typing import Annotated
 from fastapi import status
 
+from pydantic import BaseModel
+from sqlalchemy import Date, Time
+
 # --- Configuración conexión a PostgreSQL (ajusta usuario, pass, host, puerto, dbname)
 #DATABASE_URL = "postgresql+psycopg2://mtNUViyTddNAbZhAVZP6R23G9k0BFcJY:mtNUViyTddNAbZhAVZP6R23G9k0BFcJY@host:5432/laburantes_db"
 DATABASE_URL = "postgresql://laburantes_db_user:mtNUViyTddNAbZhAVZP6R23G9k0BFcJY@dpg-d1m3kqa4d50c738f4a7g-a/laburantes_db"
@@ -91,6 +94,25 @@ class Usuario(Base):
     localidad = Column(String, nullable=False)
     wsapp = Column(String, nullable=False)
 
+class Tracking(Base):
+    __tablename__ = "tracking"
+    id = Column(Integer, primary_key=True)
+    fecha = Column(Date)
+    hora = Column(Time)
+    nroAndroid = Column(String)
+    lati = Column(String)
+    loni = Column(String)
+
+class TrackingIn(BaseModel):
+    fecha: str
+    hora: str
+    nroAndroid: str
+    lati: str
+    loni: str
+
+    class Config:
+        orm_mode = True
+
 
 # --- FastAPI app y dependencias
 
@@ -125,24 +147,105 @@ def get_db():
 @app.post("/cargar_oficios/")
 def cargar_oficios(db: Session = Depends(get_db)):
     oficios = [
-        'Albañil','Informático','Mozo','Programador Web','Programador Front End','Programador Back End','Vendedor' ,'Vendedor Ambulante' ,'Ayudante de Cocina' ,'Chapista' ,'Membranas', 'Zinguero','Empleada Doméstica' ,'Enfermera - Enfermero', 'Perforaciones','Taxista','Electricista','Electricista del Automotor' ,'Plomero', 'Gasista matriculado', 'Carpintero', 'Pintor',
-        'Cerrajero', 'Techista', 'Colocador de cerámicos', 'Colocador de durlock', 'Soldador',
-        'Mecánico automotor','Delyvery','Remisse', 'Mecánico de motos', 'Reparador de electrodomésticos', 'Herrero',
-        'Jardinero', 'Podador', 'Cuidadores de adultos mayores', 'Niñera', 'Maestra particular',
-        'Cocinero a domicilio', 'Delivery con moto', 'Mudanzas y fletes', 'Peluquero/a',
-        'Manicuría y pedicuría', 'Estética y depilación', 'Masajista', 'Personal trainer',
-        'Entrenador deportivo', 'Profesor de música', 'Profesor de inglés','Profesor de Matemáticas' ,' Profesor de Gimnasia','Profesor de Danzas' ,'Profesor de Música' ,'Clases de apoyo escolar',
-        'Diseñador gráfico', 'Diseñador web', 'Fotógrafo', 'Videógrafo', 'Community manager',
-        'Desarrollador de software', 'Técnico en computación', 'Armado y reparación de PC',
-        'Instalador de cámaras de seguridad', 'Instalador de redes', 'Servicio de limpieza',
-        'Limpieza de vidrios', 'Limpieza final de obra', 'Cuidado de mascotas', 'Paseador de perros',
-        'Adiestrador canino', 'Yesero', 'Parquero', 'Servicio de catering', 'DJ para eventos',
-        'Animador de fiestas infantiles', 'Mozo para eventos', 'Bartender', 'Diseño de interiores',
-        'Montador de muebles', 'Costurera', 'Modista', 'Sastre', 'Tapicero', 'Tornero',
-        'Gomería móvil', 'Lavado de autos a domicilio', 'Reparación de bicicletas',
-        'Maquinista rural', 'Peón rural', 'Cuidador de campo', 'Apicultor', 'Viverista',
-        'Cortador de leña', 'Operario de maquinaria pesada', 'Zanellero', 'Herrador',
-        'Pintura artística', 'Diseño de tatuajes', 'Tatuador', 'Estilista canino'
+        'Albañil',#1#
+        'Informático',#2#
+        'Mozo',#3#
+        'Programador Web',#4#
+        'Programador Front End',#5#
+        'Programador Back End',#6#
+        'Vendedor' ,#7#
+        'Vendedor Ambulante', #8#
+        'Ayudante de Cocina',#9#
+        'Chapista',#10#
+        'Membranas',#11#
+        'Zinguero',#12#
+        'Empleada Doméstica',#13#
+        'Enfermera - Enfermero',#14#
+        'Perforaciones',#15#
+        'Taxista',#16#
+        'Electricista',#17#
+        'Electricista del Automotor',#18#
+        'Plomero',#19#
+        'Gasista matriculado',#20#
+        'Carpintero',#21#
+        'Pintor',#22#
+        'Cerrajero',#23#
+        'Techista',#24#
+        'Colocador de cerámicos',#25#
+        'Colocador de durlock',#26#
+        'Soldador',#27#
+        'Mecánico automotor',#28#
+        'Delyvery',#29#
+        'Remisse',#30#
+        'Mecánico de motos',#31#
+        'Reparador de electrodomésticos',#32#
+        'Herrero',#33#
+        'Jardinero',#34#
+        'Podador',#35#
+        'Cuidadores de adultos mayores',#36#
+        'Niñera',#37#
+        'Maestra particular',#38#
+        'Cocinero a domicilio',#39#
+        'Delivery con moto',#40#
+        'Mudanzas y fletes',#41#
+        'Peluquero/a',#42#
+        'Manicuría y pedicuría',#43#
+        'Estética y depilación',#44#
+        'Masajista',#45#
+        'Personal trainer',#46#
+        'Entrenador deportivo',#47#
+        'Profesor de música',#48#
+        'Profesor de inglés',#49#
+        'Profesor de Matemáticas',#50#
+        'Profesor de Gimnasia',#51#
+        'Profesor de Danzas',#52#
+        'Profesor de Música',#53#
+        'Clases de apoyo escolar',#54#
+        'Diseñador gráfico',#55#
+        'Diseñador web',#56#
+        'Fotógrafo',#57#
+        'Videógrafo',#58#
+        'Community manager',#59#
+        'Desarrollador de software',#60#
+        'Técnico en computación',#61#
+        'Armado y reparación de PC',#62#
+        'Instalador de cámaras de seguridad',#63#
+        'Instalador de redes',#64#
+        'Servicio de limpieza',#65#
+        'Limpieza de vidrios',#66#
+        'Limpieza final de obra',#67#
+        'Cuidado de mascotas',#68#
+        'Paseador de perros',#69#
+        'Adiestrador canino',#70#
+        'Yesero', 'Parquero',#71#
+        'Servicio de catering',#72#
+        'DJ para eventos',#73#
+        'Animador de fiestas infantiles',#74#
+        'Mozo para eventos',#75#
+        'Bartender',#76#
+        'Diseño de interiores',#77#
+        'Montador de muebles',#78#
+        'Costurera',#79#
+        'Modista',#80#
+        'Sastre',#81#
+        'Tapicero',#82#
+        'Tornero',#83#
+        'Gomería móvil',#84#
+        'Lavado de autos a domicilio',#85#
+        'Reparación de bicicletas',#86#
+        'Maquinista rural',#87#
+        'Peón rural',#88#
+        'Cuidador de campo',#89#
+        'Apicultor',#90#
+        'Viverista',#91#
+        'Cortador de leña',#92#
+        'Operario de maquinaria pesada',#93#
+        'Zanellero',#94#
+        'Herrador',#95#
+        'Pintura artística',#96#
+        'Diseño de tatuajes',#97#
+        'Tatuador',#98#
+        'Estilista canino'#99#
     ]
 
     for titulo in oficios:
@@ -150,6 +253,15 @@ def cargar_oficios(db: Session = Depends(get_db)):
     db.commit()
     return {"mensaje": f"Se insertaron {len(oficios)} oficios"}
 ##############################################################
+@app.post("/tracking/")
+def registrar_tracking(datos: TrackingIn, db: Session = Depends(get_db)):
+    nuevo = Tracking(**datos.dict())
+    db.add(nuevo)
+    db.commit()
+    return {"ok": True}
+
+##############################################################
+
 @app.get("/ver_servicios_trabajadores/")
 def ver_servicios_trabajadores(db: Session = Depends(get_db)):
     filas = db.query(Servicios_Trabajadores).all()
